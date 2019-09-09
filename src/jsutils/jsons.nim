@@ -3,14 +3,17 @@
 import json, strutils
 
 
-proc notNil(x: SomeInteger|SomeFloat|string|bool|object|seq): bool =
+proc notNil(x: SomeInteger|SomeFloat|string|bool|object|seq|enum): bool =
   true
 
-proc notNil(x: ref object): bool =
+proc notNil(x: ref object|cstring): bool =
   x != nil
 
 proc toJson*(x: SomeInteger|SomeFloat|string|bool): JsonNode =
   %x
+
+proc toJson*(x: cstring): JsonNode =
+  %($x)
 
 proc toJson*[T](x: openArray[T]): JsonNode =
   result = newJArray()
@@ -28,10 +31,13 @@ proc toJson*(x: object): JsonNode =
 
 proc toJson*(x: ref object): JsonNode =
   result = newJObject()
-  if x != nil:
+  if not x.isNil:
     for name, value in x[].fieldPairs:
       if notNil(value):
         result[name] = value.toJson()
+
+proc toJson*(x: JsonNode): JsonNode =
+  x
 
 proc notNilAndValid(root: JsonNode, kind: JsonNodeKind): bool =
   (not root.isNil) and (root.kind == kind)
@@ -76,6 +82,9 @@ proc fromJson*(root: JsonNode, x: var ref object) =
     x = type(x)()
     for name, value in x[].fieldPairs:
       root.getOrDefault(name).fromJson(value)
+
+proc fromJson*(root: JsonNode, x: var JsonNode) =
+  x = root
 
 template fromJson*[T](json: JsonNode, _: typedesc[T]): T =
   var result: T
@@ -216,3 +225,21 @@ when isMainModule:
     }
   """).fromJson(Bar2)
   echo bar2.foo.id
+
+  echo parseJson("""
+    {
+      "random": 123,
+      "json": {"id": 456}
+    }
+  """).toJson()
+
+  type
+    Foo3 = ref object
+      data: JsonNode
+
+  var foo3 = parseJson("""
+    {
+      "data": {"id": 456}
+    }
+  """).fromJson(Foo3)
+  echo foo3.data

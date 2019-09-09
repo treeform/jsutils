@@ -1,51 +1,15 @@
 ## JS implementions of StringStream
-import dom, jsffi
+import arraybuffers
 
 when not defined(js):
   {.fatal: "This module can only be used in js mode".}
 
 type
-
-  ArrayBuffer {.importc.} = ref object
-  DataView {.importc.} = ref object
-
   StringStream = ref object
     buffer: ArrayBuffer
     view: DataView
     pos: int
     cap: int
-
-proc newArrayBuffer(bytes: int): ArrayBuffer =
-  {.emit: "`result` = new ArrayBuffer(`bytes`)".}
-
-proc newDataView(buffer: ArrayBuffer): DataView =
-  {.emit: "`result` = new DataView(`buffer`)".}
-
-proc len(buffer: ArrayBuffer): int =
-  {.emit: "`result` = `buffer`.byteLength".}
-
-
-proc getBigInt64(dataView: DataView, pos: int): int64 {.importcpp.}
-proc getBigUint64(dataView: DataView, pos: int): uint64 {.importcpp.}
-proc getFloat32(dataView: DataView, pos: int): float32 {.importcpp.}
-proc getFloat64(dataView: DataView, pos: int): float64 {.importcpp.}
-proc getInt16(dataView: DataView, pos: int): int16 {.importcpp.}
-proc getInt32(dataView: DataView, pos: int): int32 {.importcpp.}
-proc getInt8(dataView: DataView, pos: int): int8 {.importcpp.}
-proc getUint16(dataView: DataView, pos: int): uint16 {.importcpp.}
-proc getUint32(dataView: DataView, pos: int): uint32 {.importcpp.}
-proc getUint8(dataView: DataView, pos: int): uint8 {.importcpp.}
-
-proc setBigInt64(dataView: DataView, pos: int, value: int64) {.importcpp.}
-proc setBigUint64(dataView: DataView, pos: int, value: uint64) {.importcpp.}
-proc setFloat32(dataView: DataView, pos: int, value: float32) {.importcpp.}
-proc setFloat64(dataView: DataView, pos: int, value: float64) {.importcpp.}
-proc setInt16(dataView: DataView, pos: int, value: int16) {.importcpp.}
-proc setInt32(dataView: DataView, pos: int, value: int32) {.importcpp.}
-proc setInt8(dataView: DataView, pos: int, value: int8) {.importcpp.}
-proc setUint16(dataView: DataView, pos: int, value: uint16) {.importcpp.}
-proc setUint32(dataView: DataView, pos: int, value: uint32) {.importcpp.}
-proc setUint8(dataView: DataView, pos: int, value: uint8) {.importcpp.}
 
 
 proc newStringStream(data=""): StringStream =
@@ -90,21 +54,26 @@ proc readAll*(s: StringStream): string =
     result.add char(s.view.getUint8(s.pos))
     inc s.pos
 
-proc gorw(s: StringStream) =
-
+proc grow(s: StringStream, minBytes=0) =
+  ## Grows string stream cap by x2 for a minium of minBytes
+  s.cap = max(minBytes, s.cap * 2)
+  s.buffer = s.buffer.transfer(s.cap)
+  s.view = newDataView(s.buffer)
 
 proc write*(s: StringStream, x: string) =
   ## writes the string `x` to the the stream `s`. No length field or
   ## terminating zero is written.
+  if s.pos + x.len > s.cap:
+    s.grow(s.pos + x.len)
   for c in x:
-    if s.pos > s.cap: s.grow()
     s.view.setUInt8(s.pos, uint8 ord(c))
     inc s.pos
 
 proc write*(s: StringStream, args: varargs[string, `$`]) =
   ## writes one or more strings to the the stream. No length fields or
   ## terminating zeros are written.
-  for str in args: s.write(str)
+  for str in args:
+    s.write(str)
 
 when isMainModule:
 
@@ -115,6 +84,7 @@ when isMainModule:
   echo s.readAll()
   s.write(", how are you?")
   s.write("I", " ", "am", " ", "good.")
+  echo s.readAll()
 
 
 
