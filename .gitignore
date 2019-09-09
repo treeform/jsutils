@@ -3,4 +3,5 @@
 !*.*
 *.exe
 *.dll
+*.js
 nimcache
