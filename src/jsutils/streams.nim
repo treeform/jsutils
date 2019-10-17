@@ -1,8 +1,8 @@
 ## JS implementions of StringStream
 import arraybuffers
 
-when not defined(js):
-  {.fatal: "This module can only be used in js mode".}
+when not defined(js) and not defined(Nimdoc):
+  {.error: "This module only works on the JavaScript platform".}
 
 type
   StringStream = ref object

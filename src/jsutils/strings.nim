@@ -1,15 +1,14 @@
 ## JS Strings makes cstring have simmilar methods to normal nim string when in js mode.
 ## If you are doing with a ton of JS string data, JS strings might be faster
 
-when not defined(js):
-  {.fatal: "This module can only be used in js mode".}
+when not defined(js) and not defined(Nimdoc):
+  {.error: "This module only works on the JavaScript platform".}
 
-proc `&`*(x, y: cstring): cstring =
-  asm """
-  return `x` + `y`;
-  """
+proc `&`*(x, y: cstring): cstring {.importcpp: "(# + #)".}
+  ## Concats two JS strings together
 
 proc `[]`*[T, U](s: cstring; x: HSlice[T, U]): cstring =
+  ## Slices a JS string
   let l = x.a
   var h: int
   when U is BackwardsIndex:
@@ -22,39 +21,96 @@ proc `[]`*[T, U](s: cstring; x: HSlice[T, U]): cstring =
   return `s`.slice(`l`, `h`);
   """
 
+proc repeat*(s: cstring, n: Natural): cstring {.importcpp: "#.repeat(#)".} =
+  ## Returns string `s` concatenated `n` times.
+  
+proc startsWith*(s, a: cstring): bool {.importcpp: "#.startsWith(#)".}
+  ## Returns true if ``s`` starts with string ``prefix``.
+  ##
+  ## If ``prefix == ""`` true is returned.
 
-proc startsWith*(s, a: cstring): bool =
-  asm """
-  return `s`.startsWith(`a`);
-  """
+proc endsWith*(s: cstring, suffix: cstring): bool {.importcpp: "#.endsWith(#)".} =
+  ## Returns true if ``s`` ends with ``suffix``.
+  ##
+  ## If ``suffix == ""`` true is returned.
+
+proc find*(s: cstring, a: cstring): int {.importcpp: "#.indexOf(#)".}
+  ## Searches for `sub` in `s` inside range `start`..`last` using preprocessed
+  ## table `a`. If `last` is unspecified, it defaults to `s.high` (the last
+  ## element).
+  ##
+  ## Searching is case-sensitive. If `sub` is not in `s`, -1 is returned.
+
+proc contains*(s, sub: cstring): bool {.noSideEffect.} =
+  ## Same as ``find(s, sub) >= 0``.
+  ##
+  ## See also:
+  ## * `find proc<#find,string,string,Natural,int>`_
+  return find(s, sub) >= 0
+
+proc split*(s: cstring, a: cstring): seq[cstring] {.importcpp: "#.split(#)".}
+  ## Splits the string `s` into substrings using a single separator.
+  ##
+  ## Substrings are separated by the character `sep`.
+
+proc toLowerAscii*(s: cstring): cstring {.importcpp:"#.toLowerCase()".} 
+  ## Converts string `s` into lower case.
+  ##
+  ## This works only for the letters ``A-Z``. 
 
 
-proc contains*(arr: seq[string], s: cstring): bool =
-  for a in arr:
-    if a == s:
-      return true
-  return false
+proc toUpperAscii*(s: cstring): cstring {.importcpp:"#.toUpperCase()".} 
+  ## Converts string `s` into upper case.
+  ##
+  ## This works only for the letters ``A-Z``.
 
+proc replace*(s, sub: cstring, by = cstring""): cstring {.importcpp:"#.replace(#, #)".} 
+  ## Replaces `sub` in `s` by the string `by`.
 
-proc contains*(s: cstring, a: cstring): bool =
-  asm """
-  return `s`.indexOf(`a`) != -1;
-  """
+proc strip*(s: cstring): cstring {.importcpp:"#.trim()".} 
+  ## Strips leading or trailing spaces 
 
-
-proc split*(s: cstring, a: cstring): seq[cstring] =
-  asm """
-  return `s`.split(`a`)
-  """
+proc parseFloatJS*(s: cstring): float {.importcpp:"parseFloat(#)".} =
+  ## Parses a decimal floating point value contained in `s`
+  ## Using JS's native float parsing function
 
 
 when isMainModule:
+  import math
+
   let
     a = cstring "hello "
     b = cstring "world!"
 
-  echo a & b
-  echo a[0]
-  echo (a & b)[2..10]
+  assert a & b == cstring "hello world!"
+  assert a[0] == 'h'
+  assert (a & b)[2..10] == cstring "llo world"
 
-  echo "hello world!"[2..10]
+  assert "hello world!"[2..10] == cstring "llo world"
+
+  assert cstring("Hi There!").toLowerAscii() == cstring "hi there!"
+  assert cstring("Hi There!").toUpperAscii() == cstring "HI THERE!"
+
+  assert split(cstring ";;this;is;an;;example;;;", ";") ==
+    @[cstring"", "", "this", "is", "an", "", "example", "", "", ""]
+ 
+
+  assert cstring("hi there").find(cstring "there") == 3
+  assert cstring("hi there").contains(cstring "there") == true
+  assert cstring("hi there").contains(cstring "other") == false
+  assert cstring("there") in cstring("hi there")
+
+  assert cstring("hi there").startsWith(cstring("hi"))
+  assert cstring("hi there").endsWith(cstring("there"))
+
+  assert cstring("hi there").startsWith(cstring(""))
+  assert cstring("hi there").endsWith(cstring(""))  
+
+  assert cstring("hi there").replace(cstring("hi"), cstring("bye")) == cstring("bye there")
+
+  assert cstring("  hi there     ").strip() == "hi there"
+
+  assert cstring("+ foo +").repeat(3) == cstring "+ foo ++ foo ++ foo +"
+
+  assert cstring("123.44").parseFloatJS() == 123.44
+  assert cstring("not a float").parseFloatJS().classify == fcNaN
