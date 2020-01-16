@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Andre von Houck"
-description   = ""
+description   = "Make working with JS better"
 license       = "MIT"
 srcDir        = "src"
 
