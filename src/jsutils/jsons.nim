@@ -52,7 +52,9 @@ proc fromJson*(root: JsonNode, x: var SomeFloat) =
   if root.notNilAndValid(JFloat):
     x = type(x)(root.getFloat())
   if root.notNilAndValid(JInt):
-    x = type(x)(root.getInt())
+    # In JS you can get integers that are way too big!
+    # Prase it as a float string, as we need a float anyways.
+    x = type(x)(parseFloat($root))
 
 proc fromJson*(root: JsonNode, x: var string) =
   if root.notNilAndValid(JString):
