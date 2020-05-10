@@ -2,7 +2,6 @@
 
 import json, strutils
 
-
 proc notNil(x: SomeInteger|SomeFloat|string|bool|object|seq|enum): bool =
   true
 
