@@ -1,4 +1,4 @@
-## Convert to and from json with nulls and missing fileds
+## Convert to and from json with nulls and missing fields
 
 import json, strutils
 
