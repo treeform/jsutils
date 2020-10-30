@@ -1,6 +1,6 @@
 ## Convert to and from json with nulls and missing fields
 
-import json, strutils
+import json, strutils, tables
 
 proc notNil(x: SomeInteger|SomeFloat|string|bool|object|seq|enum): bool =
   true
@@ -72,6 +72,14 @@ proc fromJson*[T](root: JsonNode, x: var seq[T]) =
     x.newSeq(root.len)
     for i, value in x.mpairs:
       root[i].fromJson(value)
+
+proc fromJson*[T](root: JsonNode, x: var Table[string, T]) =
+  if root.notNilAndValid(JObject):
+    x = initTable[string, T]()
+    for key, value in root:
+      var typedValue = new(T)
+      value.fromJson(typedValue)
+      x[key] = typedValue
 
 proc fromJson*(root: JsonNode, x: var object) =
   if root.notNilAndValid(JObject):
