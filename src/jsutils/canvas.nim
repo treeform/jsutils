@@ -12,6 +12,13 @@ type
     e*: float
     f*: float
 
+  Canvas* = ref object of dom.Element
+    width*: int
+    height*: int
+
+  TextMetrics* = ref object
+    width*: float
+
   Context2d* = ref object
     # width of the viewport
     width*: int
@@ -62,8 +69,7 @@ type
     # the current text baseline used when drawing text
     textBaseline*: cstring
 
-
-proc getContext2d*(c: dom.Element): Context2d =
+proc getContext2d*(c: Canvas): Context2d =
   {.emit: "`result` = `c`.getContext('2d');".}
 
 proc arc*(c: Context2d, x, y, radius, startAngle, endAngle: float, anticlockwise=false) {.importcpp.}
@@ -75,9 +81,16 @@ proc clip*(c: Context2d) {.importcpp.}
 proc closePath*(c: Context2d) {.importcpp.}
 proc fill*(c: Context2d) {.importcpp.}
 proc fillRect*(ctx: Context2d, x, y, w, h: float) {.importcpp.}
-proc fillText*(ctx: Context2d, text: string, x, y: float) {.importcpp.}
-proc fillText*(ctx: Context2d, text: string, x, y, maxWidth: float) {.importcpp.}
+proc fillText*(ctx: Context2d, text: cstring, x, y: float) {.importcpp.}
+proc fillText*(ctx: Context2d, text: cstring, x, y, maxWidth: float) {.importcpp.}
 proc lineTo*(ctx: Context2d, x, y: float) {.importcpp.}
 proc moveTo*(ctx: Context2d, x, y: float) {.importcpp.}
 proc stroke*(c: Context2d) {.importcpp.}
 proc strokeText*(c: Context2d, txt: cstring, x, y: float) {.importcpp.}
+proc rect*(ctx: Context2d, x, y, w, h: float) {.importcpp.}
+proc clip*(c: Context2d, fillRule: cstring) {.importcpp.}
+proc scale*(ctx: Context2d, x, y: float) {.importcpp.}
+proc translate*(ctx: Context2d, x, y: float) {.importcpp.}
+proc save*(c: Context2d) {.importcpp.}
+proc restore*(c: Context2d) {.importcpp.}
+proc measureText*(c: Context2d, text: cstring): TextMetrics {.importcpp.}
