@@ -1,8 +1,9 @@
 ## JS implementions of StringStream
-import arraybuffers
 
 when not defined(js) and not defined(Nimdoc):
   {.error: "This module only works on the JavaScript platform".}
+
+import arraybuffers
 
 type
   StringStream = ref object
@@ -10,7 +11,6 @@ type
     view: DataView
     pos: int
     cap: int
-
 
 proc newStringStream(data=""): StringStream =
   result = StringStream()
@@ -85,6 +85,3 @@ when isMainModule:
   s.write(", how are you?")
   s.write("I", " ", "am", " ", "good.")
   echo s.readAll()
-
-
-

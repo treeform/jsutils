@@ -1,14 +1,14 @@
 import jsutils/strings
-export jsutils/strings
+export strings
 
 import jsutils/canvas
-export jsutils/canvas
+export canvas
 
 import jsutils/arraybuffers
-export jsutils/arraybuffers
+export arraybuffers
 
 import jsutils/jsons
-export jsutils/jsons
+export jsons
 
 import jsutils/streams
-export jsutils/streams
+export streams

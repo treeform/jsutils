@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "Andre von Houck"
 description   = "Make working with JS better"
 license       = "MIT"
@@ -9,4 +9,4 @@ srcDir        = "src"
 
 # Dependencies
 
-requires "nim >= 0.20.0"
+requires "nim >= 1.4.0"

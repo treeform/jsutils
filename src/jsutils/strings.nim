@@ -1,11 +1,11 @@
-## JS Strings makes cstring have simmilar methods to normal nim string when in js mode.
-## If you are doing with a ton of JS string data, JS strings might be faster
+## JS Strings makes cstring have similar methods to normal nim string when in js mode.
+## If you are doing with a ton of JS string data, JS strings will be faster
 
 when not defined(js) and not defined(Nimdoc):
   {.error: "This module only works on the JavaScript platform".}
 
 proc `&`*(x, y: cstring): cstring {.importcpp: "(# + #)".}
-  ## Concats two JS strings together
+  ## Concatenates two JS strings together
 
 proc `[]`*[T, U](s: cstring; x: HSlice[T, U]): cstring =
   ## Slices a JS string
@@ -23,7 +23,7 @@ proc `[]`*[T, U](s: cstring; x: HSlice[T, U]): cstring =
 
 proc repeat*(s: cstring, n: Natural): cstring {.importcpp: "#.repeat(#)".} =
   ## Returns string `s` concatenated `n` times.
-  
+
 proc startsWith*(s, a: cstring): bool {.importcpp: "#.startsWith(#)".}
   ## Returns true if ``s`` starts with string ``prefix``.
   ##
@@ -53,22 +53,22 @@ proc split*(s: cstring, a: cstring): seq[cstring] {.importcpp: "#.split(#)".}
   ##
   ## Substrings are separated by the character `sep`.
 
-proc toLowerAscii*(s: cstring): cstring {.importcpp:"#.toLowerCase()".} 
+proc toLowerAscii*(s: cstring): cstring {.importcpp:"#.toLowerCase()".}
   ## Converts string `s` into lower case.
   ##
-  ## This works only for the letters ``A-Z``. 
+  ## This works only for the letters ``A-Z``.
 
 
-proc toUpperAscii*(s: cstring): cstring {.importcpp:"#.toUpperCase()".} 
+proc toUpperAscii*(s: cstring): cstring {.importcpp:"#.toUpperCase()".}
   ## Converts string `s` into upper case.
   ##
   ## This works only for the letters ``A-Z``.
 
-proc replace*(s, sub: cstring, by = cstring""): cstring {.importcpp:"#.replace(#, #)".} 
+proc replace*(s, sub: cstring, by = cstring""): cstring {.importcpp:"#.replace(#, #)".}
   ## Replaces `sub` in `s` by the string `by`.
 
-proc strip*(s: cstring): cstring {.importcpp:"#.trim()".} 
-  ## Strips leading or trailing spaces 
+proc strip*(s: cstring): cstring {.importcpp:"#.trim()".}
+  ## Strips leading or trailing spaces
 
 proc parseFloatJS*(s: cstring): float {.importcpp:"parseFloat(#)".} =
   ## Parses a decimal floating point value contained in `s`
@@ -93,7 +93,7 @@ when isMainModule:
 
   assert split(cstring ";;this;is;an;;example;;;", ";") ==
     @[cstring"", "", "this", "is", "an", "", "example", "", "", ""]
- 
+
 
   assert cstring("hi there").find(cstring "there") == 3
   assert cstring("hi there").contains(cstring "there") == true
@@ -104,7 +104,7 @@ when isMainModule:
   assert cstring("hi there").endsWith(cstring("there"))
 
   assert cstring("hi there").startsWith(cstring(""))
-  assert cstring("hi there").endsWith(cstring(""))  
+  assert cstring("hi there").endsWith(cstring(""))
 
   assert cstring("hi there").replace(cstring("hi"), cstring("bye")) == cstring("bye there")
 

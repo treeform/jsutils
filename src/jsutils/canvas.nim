@@ -1,3 +1,6 @@
+when not defined(js) and not defined(Nimdoc):
+  {.error: "This module only works on the JavaScript platform".}
+
 import dom
 
 type
@@ -78,5 +81,3 @@ proc lineTo*(ctx: Context2d, x, y: float) {.importcpp.}
 proc moveTo*(ctx: Context2d, x, y: float) {.importcpp.}
 proc stroke*(c: Context2d) {.importcpp.}
 proc strokeText*(c: Context2d, txt: cstring, x, y: float) {.importcpp.}
-
-

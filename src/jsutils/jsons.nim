@@ -1,5 +1,8 @@
 ## Convert to and from json with nulls and missing fields
 
+when not defined(js) and not defined(Nimdoc):
+  {.error: "This module only works on the JavaScript platform".}
+
 import json, strutils, tables
 
 proc notNil(x: SomeInteger|SomeFloat|string|bool|object|seq|enum): bool =
