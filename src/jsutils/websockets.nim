@@ -1,6 +1,10 @@
-from dom import Event, EventTarget
+## JS WebSockets
+## based on https://github.com/stisa/jswebsockets by Silvio MIT Copyright 2017
 
-# based on https://github.com/stisa/jswebsockets by Silvio MIT Copyright 2017
+when not defined(js) and not defined(Nimdoc):
+  {.error: "This module only works on the JavaScript platform".}
+
+from dom import Event, EventTarget
 
 type
   MessageEvent* = object of Event
