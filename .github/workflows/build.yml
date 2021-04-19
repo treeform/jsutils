@@ -23,4 +23,9 @@ jobs:
 
     - uses: jiro4989/setup-nim-action@v1
 
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - run: nimble develop
     - run: nim js -r tests/test.nim
