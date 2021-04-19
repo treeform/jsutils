@@ -27,5 +27,5 @@ jobs:
       with:
         node-version: '14'
 
-    - run: nimble develop
+    - run: nimble develop -y
     - run: nim js -r tests/test.nim
